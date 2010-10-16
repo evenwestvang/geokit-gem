@@ -37,9 +37,7 @@ module Geokit
     end
     
     def url_escape(s)
-    s.gsub(/([^ a-zA-Z0-9_.-]+)/nu) do
-      '%' + $1.unpack('H2' * $1.size).join('%').upcase
-      end.tr(' ', '+')
+      CGI.escape(s)
     end
     
     def camelize(str)
@@ -433,6 +431,7 @@ module Geokit
         res = self.call_geocoder_service("http://maps.google.com/maps/geo?q=#{Geokit::Inflector::url_escape(address_str)}&output=xml#{bias_str}&key=#{Geokit::Geocoders::google}&oe=utf-8")
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
         xml = res.body
+        xml = xml.force_encoding(Encoding::UTF_8)
         logger.debug "Google geocoding. Address: #{address}. Result: #{xml}"
         return self.xml2GeoLoc(xml, address)        
       end
